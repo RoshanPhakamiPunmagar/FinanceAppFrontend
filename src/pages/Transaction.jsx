@@ -38,7 +38,7 @@ const Transaction = () => {
 
     const response = await axios({
       method: "get",
-      url: "http://localhost:3000/api/v1/transactions?pageLimit=10",
+      url: "https://financeapp-1-1myj.onrender.com/api/v1/transactions?pageLimit=10",
       headers: {
         Authorization: token,
       },
@@ -68,12 +68,12 @@ const Transaction = () => {
   }, [displayTransactionList]);
 
   useEffect(() => {
-    let filteredList = transactionList.filter(
+    let filtereList = transactionList.filter(
       (item) =>
         item.description.toLowerCase().includes(search.toLowerCase()) ||
         item.type.toLowerCase().includes(search.toLowerCase())
     );
-    setDisplayTransactionList(filteredList);
+    setDisplayTransactionList(filtereList);
   }, [search]);
 
   return (
