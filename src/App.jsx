@@ -11,6 +11,7 @@ import Transaction from "./pages/Transaction";
 import AuthComponent from "./auth/AuthComponent";
 import { useAuth } from "./context/AuthContext";
 import axios from "axios";
+import AddTransaction from "./pages/AddTransaction";
 
 function App() {
   const { user, setUser } = useAuth();
@@ -71,6 +72,15 @@ function App() {
             element={
               <AuthComponent>
                 <Transaction />
+              </AuthComponent>
+            }
+          />
+
+          <Route
+            path="add-transaction"
+            element={
+              <AuthComponent>
+                <AddTransaction />
               </AuthComponent>
             }
           />

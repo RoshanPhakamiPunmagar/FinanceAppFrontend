@@ -1,8 +1,11 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Button, Col, Container, Row, Table } from "react-bootstrap";
+import { Button, Col, Container, Form, Row, Table } from "react-bootstrap";
+import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 const Transaction = () => {
+  const navigate = useNavigate();
   const [totalAmount, setTotalAmount] = useState(100);
   const [transactionList, setTransactionList] = useState([
     {
@@ -28,6 +31,8 @@ const Transaction = () => {
     },
   ]);
 
+  const [idsToDelete, setIdsToDelete] = useState([]);
+
   const [displayTransactionList, setDisplayTransactionList] = useState([]);
 
   const [search, setSearch] = useState("");
@@ -38,7 +43,7 @@ const Transaction = () => {
 
     const response = await axios({
       method: "get",
-      url: "https://financeapp-1-1myj.onrender.com/api/v1/transactions?pageLimit=10",
+      url: "http://localhost:3000/api/v1/transactions?pageLimit=10",
       headers: {
         Authorization: token,
       },
@@ -48,6 +53,64 @@ const Transaction = () => {
 
     if (response?.data?.status === "success") {
       setTransactionList(response.data.transactions);
+    }
+  };
+
+  // func to delete transation
+  const deleteTransaction = async (id) => {
+    const token = localStorage.getItem("accessJWT");
+
+    const response = await axios({
+      method: "delete",
+      url: "http://localhost:3000/api/v1/transactions/" + id,
+      headers: {
+        Authorization: token,
+      },
+    });
+    toast[response.data.status](response.data.message);
+
+    if (response.data.status == "success") {
+      fetchTransaction();
+    }
+  };
+
+  // handle buld delete
+  const handleBulkDelete = async () => {
+    // bulk delete api
+    const token = localStorage.getItem("accessJWT");
+
+    const response = await axios({
+      method: "delete",
+      url: "http://localhost:3000/api/v1/transactions",
+      data: {
+        ids: idsToDelete,
+      },
+      headers: {
+        Authorization: token,
+      },
+    });
+    toast[response.data.status](response.data.message);
+
+    if (response.data.status == "success") {
+      fetchTransaction();
+    }
+  };
+
+  // update ids to delete
+  const updateIdsToDelete = (id, state) => {
+    console.log(id, state);
+    // check if checked or not
+    if (state) {
+      // add to ids
+      const tempIds = idsToDelete;
+      tempIds.push(id);
+      console.log(tempIds.length);
+
+      setIdsToDelete(tempIds);
+    } else {
+      const tempIds = idsToDelete.filter((i) => i != id);
+      console.log(tempIds.length);
+      setIdsToDelete(tempIds);
     }
   };
 
@@ -95,7 +158,14 @@ const Transaction = () => {
           />
         </Col>
         <Col>
-          <Button variant="primary">Add Transaction</Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              navigate("/add-transaction");
+            }}
+          >
+            Add Transaction
+          </Button>
         </Col>
       </Row>
       <Row>
@@ -107,30 +177,57 @@ const Transaction = () => {
               <th>description</th>
               <th>Type</th>
               <th>Amount</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
             {displayTransactionList.map((t, i) => {
               return (
-                <>
-                  <tr>
-                    <td>{i + 1} </td>
-                    <td>{t.date.split("T")[0]}</td>
-                    <td>{t.description}</td>
-                    <td>{t.type}</td>
-                    <td
-                      className={
-                        t.type === "income" ? "text-success" : "text-danger"
-                      }
+                <tr key={i}>
+                  <td>
+                    {i + 1}{" "}
+                    <Form.Check
+                      inline
+                      name="group1"
+                      type="checkbox"
+                      // id={`inline-${type}-1`}
+
+                      onChange={(event) => {
+                        updateIdsToDelete(t._id, event.target.checked);
+                      }}
+                    />
+                  </td>
+                  <td>{t.date.split("T")[0]}</td>
+                  <td>{t.description}</td>
+                  <td>{t.type}</td>
+                  <td
+                    className={
+                      t.type === "income" ? "text-success" : "text-danger"
+                    }
+                  >
+                    ${t.amount}
+                  </td>
+                  <td>
+                    <Button
+                      variant="danger"
+                      className="ms-4"
+                      onClick={() => {
+                        // alert("DELETE THIS TRANSACTION" + t._id);
+                        // call delete api
+
+                        if (confirm("Delete ?")) {
+                          deleteTransaction(t._id);
+                        }
+                      }}
                     >
-                      ${t.amount}
-                    </td>
-                  </tr>
-                </>
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
               );
             })}
 
-            <tr>
+            <tr key={"last-row"}>
               <td></td>
               <td></td>
               <td></td>
@@ -139,6 +236,25 @@ const Transaction = () => {
             </tr>
           </tbody>
         </Table>
+      </Row>
+      <Row>
+        <Col>
+          <Button
+            variant="danger"
+            onClick={() => {
+              handleBulkDelete();
+            }}
+          >
+            {idsToDelete.length} Delete Selected
+          </Button>
+          {idsToDelete.length > 0 ? (
+            <></>
+          ) : (
+            <>
+              <div key={"no-delete"}></div>
+            </>
+          )}
+        </Col>
       </Row>
     </Container>
   );

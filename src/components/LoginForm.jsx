@@ -55,10 +55,7 @@ const LoginForm = () => {
     // ajax call
     // api call
     // fetch axios
-    let response = await axios.post(
-      "https://financeapp-1-1myj.onrender.com/api/v1/login",
-      form
-    );
+    let response = await axios.post("http://localhost:3000/api/v1/login", form);
 
     console.log(response.data);
     toast[response.data.status](response.data.message);

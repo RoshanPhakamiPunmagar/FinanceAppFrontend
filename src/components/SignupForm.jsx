@@ -66,10 +66,7 @@ const SignupForm = () => {
     // api call
     // fetch axios
 
-    let response = await axios.post(
-      "https://financeapp-1-1myj.onrender.com/api/v1/users",
-      form
-    );
+    let response = await axios.post("http://localhost:3000/api/v1/users", form);
 
     console.log(response.data);
     toast[response.data.status](response.data.message);
