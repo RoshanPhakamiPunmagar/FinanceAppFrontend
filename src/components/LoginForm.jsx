@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
+import { Button, Card, Container, Form, Spinner } from "react-bootstrap";
 import CustomInput from "./CustomInput";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -10,16 +9,19 @@ import { useLocation, useNavigate } from "react-router";
 
 const LoginForm = () => {
   const { user, setUser } = useAuth();
-  // navigation
   const navigate = useNavigate();
+  const location = useLocation();
+  const { color, toggleColor } = useTheme();
 
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    email: "test@gmail.com",
-    password: "test",
+    email: "",
+    password: "",
   });
+
   const inputFields = [
     {
-      placeholder: "Email",
+      placeholder: "Enter your email",
       type: "email",
       label: "Email",
       inputid: "EmailInput",
@@ -27,7 +29,7 @@ const LoginForm = () => {
       value: form.email,
     },
     {
-      placeholder: "Password",
+      placeholder: "Enter your password",
       type: "password",
       label: "Password",
       inputid: "PasswordInput",
@@ -37,94 +39,113 @@ const LoginForm = () => {
   ];
 
   const onChange = (event) => {
-    console.log(event.target.value);
-    console.log(event.target.name);
-
-    if (event.target.name != "cpassword") {
-      setForm({
-        ...form,
-        [event.target.name]: event.target.value,
-      });
-    }
+    setForm({
+      ...form,
+      [event.target.name]: event.target.value,
+    });
   };
 
   const handleOnSubmit = async (event) => {
-    // prevent the reload
     event.preventDefault();
+    setLoading(true);
 
-    // ajax call
-    // api call
-    // fetch axios
-    let response = await axios.post(
-      "https://financeapp-1-1myj.onrender.com/api/v1/login",
-      form
-    );
+    try {
+      const response = await axios.post(
+        "https://financeapp-1-1myj.onrender.com/api/v1/login",
+        form
+      );
 
-    console.log(response.data);
-    toast[response.data.status](response.data.message);
+      toast[response.data.status](response.data.message);
 
-    if (response.data.status == "success") {
-      // save token to localstorage
-      localStorage.setItem("accessJWT", response.data.token);
-
-      // update user from auth context
-      setUser(response.data.user);
-
-      // navigate to transaction
-      navigate("/transaction");
+      if (response.data.status === "success") {
+        localStorage.setItem("accessJWT", response.data.token);
+        setUser(response.data.user);
+        navigate("/transaction");
+      }
+    } catch (error) {
+      toast.error("Invalid email or password");
+    } finally {
+      setLoading(false);
     }
   };
-
-  // context
-  const { color, toggleColor } = useTheme();
-
-  const location = useLocation();
-  console.log(22222, location);
 
   const goBack = location?.state?.from?.location?.pathname || "/transaction";
 
   useEffect(() => {
     if (user?._id) {
-      // navigate to some pages
-      // get the location where we came from
       navigate(goBack);
     }
   }, [user?._id]);
 
   return (
-    <div className="border rounded-4 p-4 bg-dark text-white">
-      <h1>Login : {color} </h1>
-      <hr />
-      <Form onSubmit={handleOnSubmit}>
-        {/* <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Label>Email address</Form.Label>
-          <Form.Control type="email" placeholder="Enter email" />
-        </Form.Group> */}
-        {/* 
-        <Form.Group className="mb-3" controlId="formBasicPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control type="password" placeholder="Password" />
-        </Form.Group> */}
+    <Container
+      fluid
+      className="d-flex justify-content-center align-items-center min-vh-100 bg-dark text-white"
+    >
+      <Card
+        className="p-5 shadow-lg rounded-4 bg-gradient text-white"
+        style={{
+          maxWidth: "420px",
+          width: "100%",
+          background:
+            color === "dark"
+              ? "linear-gradient(145deg, #1c1c1c, #2a2a2a)"
+              : "linear-gradient(145deg, #f8f9fa, #e9ecef)",
+        }}
+      >
+        <h2 className="text-center mb-4 text-info fw-bold">Welcome Back </h2>
+        <p className="text-center text-secondary mb-4">
+          Log in to manage your finances smartly
+        </p>
 
-        {/* <CustomInput
-          placeholder="test"
-          type="number"
-          label="customlabel"
-          inputid="forminput"
-          name="name"
-        /> */}
+        <Form onSubmit={handleOnSubmit}>
+          {inputFields.map((item, i) => (
+            <div key={i} className="mb-3">
+              <CustomInput {...item} onChange={onChange} />
+            </div>
+          ))}
 
-        {inputFields.map((item) => (
-          <CustomInput {...item} onChange={onChange} />
-        ))}
+          <div className="d-grid mt-3">
+            <Button
+              variant="info"
+              type="submit"
+              size="lg"
+              className="fw-bold rounded-pill"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"
+                  />
+                  Logging in...
+                </>
+              ) : (
+                "Login"
+              )}
+            </Button>
+          </div>
+        </Form>
 
-        <Button variant="primary" type="submit">
-          Submit
-        </Button>
-
-        <button onClick={toggleColor}>Toggle</button>
-      </Form>
-    </div>
+        <div className="text-center mt-4">
+          <p className="text-secondary">
+            Don’t have an account?
+            <Button
+              variant="link"
+              className="text-info text-decoration-none ms-1"
+              onClick={() => navigate("/signup")}
+            >
+              Sign up
+            </Button>
+          </p>
+        </div>
+      </Card>
+    </Container>
   );
 };
 

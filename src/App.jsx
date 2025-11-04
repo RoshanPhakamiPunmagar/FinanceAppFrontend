@@ -27,7 +27,7 @@ function App() {
         // call the api
         let response = await axios({
           method: "Get",
-          url: "http://localhost:3000/api/v1/users",
+          url: "https://financeapp-1-1myj.onrender.com/api/v1/users",
           headers: {
             Authorization: token,
           },
