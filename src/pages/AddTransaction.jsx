@@ -74,7 +74,7 @@ const AddTransaction = () => {
 
     const response = await axios({
       method: "post",
-      url: "http://localhost:3000/api/v1/transactions",
+      url: "https://financeapp-1-1myj.onrender.com/api/v1/transactions",
       data: form,
       headers: {
         Authorization: token,

@@ -43,7 +43,7 @@ const Transaction = () => {
 
     const response = await axios({
       method: "get",
-      url: "http://localhost:3000/api/v1/transactions?pageLimit=10",
+      url: "https://financeapp-1-1myj.onrender.com/api/v1/transactions?pageLimit=10",
       headers: {
         Authorization: token,
       },
@@ -62,7 +62,7 @@ const Transaction = () => {
 
     const response = await axios({
       method: "delete",
-      url: "http://localhost:3000/api/v1/transactions/" + id,
+      url: "https://financeapp-1-1myj.onrender.com/api/v1/transactions/" + id,
       headers: {
         Authorization: token,
       },
@@ -81,7 +81,7 @@ const Transaction = () => {
 
     const response = await axios({
       method: "delete",
-      url: "http://localhost:3000/api/v1/transactions",
+      url: "https://financeapp-1-1myj.onrender.com/api/v1/transactions",
       data: {
         ids: idsToDelete,
       },
