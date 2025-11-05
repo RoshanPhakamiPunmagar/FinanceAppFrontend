@@ -77,7 +77,8 @@ const SignupForm = () => {
     setLoading(true);
     try {
       const { data } = await axios.post(
-        "https://financeapp-1-1myj.onrender.com/api/v1/users",
+        // "https://financeapp-1-1myj.onrender.com/api/v1/users",
+        "http://localhost:3000/api/v1/users",
         form
       );
       toast[data.status](data.message);
